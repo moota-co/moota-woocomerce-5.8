@@ -13,12 +13,32 @@
  **/
 include('inc/setting.php');
 
-add_action( 'woocommerce_cart_calculate_fees','woocommerce_woomoota_surcharge' );
 
+// add_action( 'woocommerce_calculate_totals', 'woocommerce_set_total');
+// /**
+//  * Set Unique to Total Order
+//  */
+// function woocommerce_set_total(){
+//     global $woocommerce;
+//     print_r($woocommerce->order->get_fees());
+// }
+
+add_action('init', 'register_my_session');
+function register_my_session()
+{
+    if( !session_id() )
+    {
+        session_start();
+    }
+}
+
+
+add_action( 'woocommerce_cart_calculate_fees','woocommerce_woomoota_surcharge' );
+//add_action( 'woocommerce_calculate_totals', 'woocommerce_woomoota_surcharge');
 /**
  * Add Unique to Total Order
  */
-function woocommerce_woomoota_surcharge() {
+function woocommerce_woomoota_surcharge($cart = null) {
     global $woocommerce;
     if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
         return;
@@ -41,8 +61,23 @@ function woocommerce_woomoota_surcharge() {
     $label_unique = get_option('woomoota_label_unique', 'Diskon');
 
     if(! is_cart()){
-        $woocommerce->cart->add_fee( $label_unique, $unique, true, '' );
+        
+        if(!isset($_SESSION[session_id().'_cart_unique_code'])){
+            if(count($woocommerce->cart->get_fees()) == 0){
+                $woocommerce->cart->add_fee( $label_unique, $unique, true, '' );
+                $_SESSION[session_id().'_cart_unique_code'] = $unique;
+            }
+        } else {
+            $woocommerce->cart->add_fee( $label_unique, $_SESSION[session_id().'_cart_unique_code'], true, '' );
+        }
     }
+}
+
+
+add_action('woocommerce_thankyou', 'clear_session');
+
+function clear_session(){
+    unset($_SESSION[session_id().'_cart_unique_code']);
 }
 
 add_action('wp_loaded', 'moota_notification_handler');
@@ -253,26 +288,26 @@ function moota_get_uqcodes() {
     $range_order = get_option('woomoota_range_order', 7);
 
     $sql = <<<EOF
-SELECT p.`ID`, oi.`order_item_id`, oim.`meta_value` `unique_code`
-FROM `{$wpdb->prefix}posts` p
-LEFT JOIN `{$wpdb->prefix}woocommerce_order_items` oi
-  ON (
-    oi.`order_id` = p.`ID`
-    AND oi.`order_item_type` = 'fee'
-    AND oi.`order_item_name` = '{$uqLabel}'
-  )
-LEFT JOIN `{$wpdb->prefix}woocommerce_order_itemmeta` oim
-  ON (
-    oim.`order_item_id` = oi.`order_item_id`
-    AND oim.`meta_key` = '_fee_amount'
-  )
-WHERE `post_type`='shop_order'
-  AND `post_status` IN (
-    'wc-on-hold', 'wc-pending'
-  )
-  AND `post_date` >= DATE(NOW()) - INTERVAL {$range_order} DAY
-LIMIT 0, {$uqMax}
-EOF;
+        SELECT p.`ID`, oi.`order_item_id`, oim.`meta_value` `unique_code`
+        FROM `{$wpdb->prefix}posts` p
+        LEFT JOIN `{$wpdb->prefix}woocommerce_order_items` oi
+        ON (
+            oi.`order_id` = p.`ID`
+            AND oi.`order_item_type` = 'fee'
+            AND oi.`order_item_name` = '{$uqLabel}'
+        )
+        LEFT JOIN `{$wpdb->prefix}woocommerce_order_itemmeta` oim
+        ON (
+            oim.`order_item_id` = oi.`order_item_id`
+            AND oim.`meta_key` = '_fee_amount'
+        )
+        WHERE `post_type`='shop_order'
+        AND `post_status` IN (
+            'wc-on-hold', 'wc-pending'
+        )
+        AND `post_date` >= DATE(NOW()) - INTERVAL {$range_order} DAY
+        LIMIT 0, {$uqMax}
+    EOF;
 
     $results = $wpdb->get_results($sql, OBJECT);
 

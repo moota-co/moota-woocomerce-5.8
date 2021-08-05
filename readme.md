@@ -1,7 +1,7 @@
 === Moota WooCommerce - Cek Mutasi Otomatis Bank Nasional  ===
 Contributors: matamerah,  onnayokheng, rezzakurniawan
 Tags: cek mutasi, mutasi bank, payment gateway, indonesia, woocomerce, bca, mandiri, bni, bri, muamalat, otomatis, mutasi, moota, bank
-Requires at least: 4.8.1
+Requires at least: 5.8
 Tested up to: 5.8
 Stable tag: 0.6.2
 License: GPLv3
