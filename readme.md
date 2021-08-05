@@ -3,7 +3,7 @@ Contributors: matamerah,  onnayokheng, rezzakurniawan
 Tags: cek mutasi, mutasi bank, payment gateway, indonesia, woocomerce, bca, mandiri, bni, bri, muamalat, otomatis, mutasi, moota, bank
 Requires at least: 5.8
 Tested up to: 5.8
-Stable tag: 0.6.2
+Stable tag: 0.6.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
