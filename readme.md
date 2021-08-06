@@ -81,8 +81,12 @@ Sistem akan mengirim notifikasi setiap ada transaksi masuk kepada Anda melalui E
 
 
 == Changelog ==
+= 0.6.3 =
+* Fixed: Bug unique code always changed after proccess order
+
 = 0.6.2 =
 * Fixed: Update for Wordpress 5.8
+
 = 0.6.1 =
 * Fixed: Unique code set with minimum unique code
 
