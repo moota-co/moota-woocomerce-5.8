@@ -61,23 +61,40 @@ function woocommerce_woomoota_surcharge($cart = null) {
     $label_unique = get_option('woomoota_label_unique', 'Diskon');
 
     if(! is_cart()){
+        $carts = $woocommerce->cart->get_cart();
         
-        if(!isset($_SESSION[session_id().'_cart_unique_code'])){
-            if(count($woocommerce->cart->get_fees()) == 0){
-                $woocommerce->cart->add_fee( $label_unique, $unique, true, '' );
-                $_SESSION[session_id().'_cart_unique_code'] = $unique;
+        if(count($carts) > 0){
+            foreach($carts as $key => $cart){
+                if(!isset($_SESSION[session_id().'_cart_unique_code'.$key])){
+                    if(count($woocommerce->cart->get_fees()) == 0){
+                        $woocommerce->cart->add_fee( $label_unique, $unique, true, '' );
+                        $_SESSION[session_id().'_cart_unique_code'.$key] = $unique;
+                    }
+                } else {
+                    $woocommerce->cart->add_fee( $label_unique, $_SESSION[session_id().'_cart_unique_code'.$key], true, '' );
+                }
             }
-        } else {
-            $woocommerce->cart->add_fee( $label_unique, $_SESSION[session_id().'_cart_unique_code'], true, '' );
         }
     }
 }
 
 
-add_action('woocommerce_thankyou', 'clear_session');
+add_action('woocommerce_checkout_order_processed', 'clear_session', 1, 1);
 
-function clear_session(){
-    unset($_SESSION[session_id().'_cart_unique_code']);
+function clear_session($order_id){
+    global $woocommerce, $post;
+    $order = new WC_Order( $order_id );
+
+    $items = $order->get_items();
+    $carts = $woocommerce->cart->get_cart();
+    foreach($items as $item){
+        foreach($carts as $key => $cart){
+            if($cart['product_id'] == $item->get_product_id()){
+                unset($_SESSION[session_id().'_cart_unique_code'.$key]);
+            }
+        }
+    }
+    //die(print_r($woocommerce->cart->get_cart()));
 }
 
 add_action('wp_loaded', 'moota_notification_handler');
