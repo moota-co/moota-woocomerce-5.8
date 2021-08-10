@@ -3,7 +3,7 @@ Contributors: matamerah,  onnayokheng, rezzakurniawan
 Tags: cek mutasi, mutasi bank, payment gateway, indonesia, woocomerce, bca, mandiri, bni, bri, muamalat, otomatis, mutasi, moota, bank
 Requires at least: 5.8
 Tested up to: 5.8
-Stable tag: 0.6.3
+Stable tag: 0.6.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -81,6 +81,10 @@ Sistem akan mengirim notifikasi setiap ada transaksi masuk kepada Anda melalui E
 
 
 == Changelog ==
+
+= 0.6.4 =
+* Add : Logging trafic
+
 = 0.6.3 =
 * Fixed: Bug unique code always changed after proccess order
 
