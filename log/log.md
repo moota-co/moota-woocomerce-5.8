@@ -1,0 +1,1 @@
+* logging all transactions with file with log.json

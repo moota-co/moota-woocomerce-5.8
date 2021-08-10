@@ -103,6 +103,11 @@ add_action('wp_loaded', 'moota_notification_handler');
  * Moota Notification Handler
  */
 function moota_notification_handler() {
+    global $wp_filesystem;
+    if (empty($wp_filesystem)) {
+        require_once (ABSPATH . '/wp-admin/includes/file.php');
+        WP_Filesystem();
+    }
     if ( !class_exists( 'WooCommerce' ) ) {
         add_action( 'admin_notices', 'moota_wc_warning' );
         return;
@@ -127,6 +132,34 @@ function moota_notification_handler() {
     }
 
     $results = array();
+
+    $path = plugin_dir_path( __FILE__ );
+    $path = $path."log/log.json";
+    if(file_exists($path)){
+        $data = json_decode($wp_filesystem->get_contents($path), true);
+        //print_r($data);
+
+        if($data['delete_on'] == date("Y-m-d")){
+            $data = array(
+                "created_at"    =>  date("Y-m-d"),
+                "delete_on"     =>  date('Y-m-d', strtotime(" + 4 Days")),
+                "data"          =>  array()
+            );
+        }
+
+        $data["data"][] = $notifications;
+    } else {
+        $data = array(
+            "created_at"    =>  date("Y-m-d"),
+            "delete_on"     =>  date('Y-m-d', strtotime(" + 4 Days")),
+            "data"          =>  array()
+        );
+        $data["data"][] = $notifications;
+    }
+    $data = json_encode($data);
+    if(!$wp_filesystem->put_contents( $path, $data, 0644) ) {
+        echo "saving file failed!";
+    }
 
     if( count($notifications) > 0 ) {
         $range_order = get_option('woomoota_range_order', 7);
