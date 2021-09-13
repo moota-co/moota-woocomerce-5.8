@@ -364,8 +364,9 @@ function moota_get_uqcodes() {
     $uqCodes = [];
 
     foreach ($results as $meta) {
-        if (empty($meta->unique_code) && $meta->unique_code != '0') continue;
-        $uqCodes[] = $meta->unique_code;
+        if (empty($meta->unique_code) && $meta->unique_code != '0') {
+            $uqCodes[] = $meta->unique_code;
+        }
     }
 
 
